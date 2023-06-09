@@ -1,0 +1,1 @@
+how to start:cmd> "python zadanie.py"
