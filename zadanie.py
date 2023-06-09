@@ -14,3 +14,10 @@ def load_json_file(file_path):
     except Exception as e:
         print(f'Błąd podczas wczytywania pliku JSON: {e}')
         return None
+def save_to_json_file(data, file_path):
+    try:
+        with open(file_path, 'w') as file:
+            json.dump(data, file, indent=4)
+            print(f'Dane zostały zapisane do pliku {file_path}')
+    except Exception as e:
+        print(f'Błąd podczas zapisywania do pliku JSON: {e}')
