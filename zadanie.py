@@ -1,6 +1,7 @@
 import argparse
 import json
 import yaml
+import xml.etree.ElementTree as ET
 
 parser = argparse.ArgumentParser(description='Opis programu')
 parser.add_argument('-a', '--argument', help='Opis argumentu')
@@ -38,3 +39,12 @@ def save_to_yaml_file(data, file_path):
             print(f'Dane zostały zapisane do pliku {file_path}')
     except Exception as e:
         print(f'Błąd podczas zapisywania do pliku YAML: {e}')
+
+def load_xml_file(file_path):
+    try:
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+        return root
+    except Exception as e:
+        print(f'Błąd podczas wczytywania pliku XML: {e}')
+        return None
