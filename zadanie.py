@@ -30,3 +30,11 @@ def load_yaml_file(file_path):
     except Exception as e:
         print(f'Błąd podczas wczytywania pliku YAML: {e}')
         return None
+
+def save_to_yaml_file(data, file_path):
+    try:
+        with open(file_path, 'w') as file:
+            yaml.dump(data, file)
+            print(f'Dane zostały zapisane do pliku {file_path}')
+    except Exception as e:
+        print(f'Błąd podczas zapisywania do pliku YAML: {e}')
