@@ -1,10 +1,30 @@
-import argparse
+import sys
 import json
 import yaml
 import xml.etree.ElementTree as ET
 import tkinter as tk
 from tkinter import filedialog
-import asyncio
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QComboBox
+
+
+def json_to_xml(json_data):
+    root = ET.Element('root')
+    json_to_xml_recursive(json_data, root)
+    return root
+
+
+def json_to_xml_recursive(json_data, parent):
+    if isinstance(json_data, dict):
+        for key, value in json_data.items():
+            if isinstance(value, (dict, list)):
+                element = ET.SubElement(parent, key)
+                json_to_xml_recursive(value, element)
+            else:
+                ET.SubElement(parent, key).text = str(value)
+    elif isinstance(json_data, list):
+        for item in json_data:
+            json_to_xml_recursive(item, parent)
+
 
 def load_json_file(file_path):
     try:
@@ -15,14 +35,15 @@ def load_json_file(file_path):
         print(f'Błąd podczas wczytywania pliku JSON: {e}')
         return None
 
-async def save_to_json_file(data, file_path):
+
+def save_to_xml_file(root, file_path):
     try:
-        with open(file_path, 'w') as file:
-            json.dump(data, file, indent=4)
-            await asyncio.sleep(0.1)
-            print(f'Dane zostały zapisane do pliku {file_path}')
+        tree = ET.ElementTree(root)
+        tree.write(file_path, encoding='utf-8', xml_declaration=True)
+        print(f'Dane zostały zapisane do pliku {file_path}')
     except Exception as e:
-        print(f'Błąd podczas zapisywania do pliku JSON: {e}')
+        print(f'Błąd podczas zapisywania do pliku XML: {e}')
+
 
 def load_yaml_file(file_path):
     try:
@@ -33,102 +54,96 @@ def load_yaml_file(file_path):
         print(f'Błąd podczas wczytywania pliku YAML: {e}')
         return None
 
-async def save_to_yaml_file(data, file_path):
+
+def save_to_json_file(data, file_path):
     try:
         with open(file_path, 'w') as file:
-            yaml.dump(data, file)
-            await asyncio.sleep(0.1)
-            print(f'Dane zostały zapisane do pliku {file_path}')
+            json.dump(data, file, indent=4)
+        print(f'Dane zostały zapisane do pliku {file_path}')
+    except Exception as e:
+        print(f'Błąd podczas zapisywania do pliku JSON: {e}')
+
+
+def save_to_yaml_file(data, file_path):
+    try:
+        with open(file_path, 'w') as file:
+            yaml.safe_dump(data, file)
+        print(f'Dane zostały zapisane do pliku {file_path}')
     except Exception as e:
         print(f'Błąd podczas zapisywania do pliku YAML: {e}')
 
-def load_xml_file(file_path):
-    try:
-        tree = ET.parse(file_path)
-        root = tree.getroot()
-        return root
-    except Exception as e:
-        print(f'Błąd podczas wczytywania pliku XML: {e}')
-        return None
 
-async def save_to_xml_file(root, file_path):
-    try:
-        tree = ET.ElementTree(root)
-        tree.write(file_path, encoding='utf-8', xml_declaration=True)
-        await asyncio.sleep(0.1)
-        print(f'Dane zostały zapisane do pliku {file_path}')
-    except Exception as e:
-        print(f'Błąd podczas zapisywania do pliku XML: {e}')
+class ConverterApp(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('Konwerter danych')
+        self.layout = QVBoxLayout()
 
-def open_file_dialog():
-    file_path = filedialog.askopenfilename()
-    return file_path
+        self.file_label = QLabel('Wybierz plik do konwersji:')
+        self.layout.addWidget(self.file_label)
 
-def save_file_dialog():
-    file_path = filedialog.asksaveasfilename()
-    return file_path
+        self.file_button = QPushButton('Wybierz plik')
+        self.file_button.clicked.connect(self.choose_file)
+        self.layout.addWidget(self.file_button)
 
-async def handle_load_json():
-    file_path = open_file_dialog()
-    if file_path:
-        data = load_json_file(file_path)
-        if data:
-            print(f'Wczytano dane z pliku JSON: {data}')
+        self.name_label = QLabel('Podaj nazwę pliku wynikowego:')
+        self.layout.addWidget(self.name_label)
 
-async def handle_save_json():
-    file_path = save_file_dialog()
-    if file_path:
-        data = {'example': 'data'}
-        await save_to_json_file(data, file_path)
+        self.name_input = QLineEdit()
+        self.layout.addWidget(self.name_input)
 
-async def handle_load_yaml():
-    file_path = open_file_dialog()
-    if file_path:
-        data = load_yaml_file(file_path)
-        if data:
-            print(f'Wczytano dane z pliku YAML: {data}')
+        self.format_label = QLabel('Wybierz format wynikowy:')
+        self.layout.addWidget(self.format_label)
 
-async def handle_save_yaml():
-    file_path = save_file_dialog()
-    if file_path:
-        data = {'example': 'data'}
-        await save_to_yaml_file(data, file_path)
+        self.format_input = QComboBox()
+        self.format_input.addItem('json')
+        self.format_input.addItem('xml')
+        self.format_input.addItem('yaml')
+        self.layout.addWidget(self.format_input)
 
-async def handle_load_xml():
-    file_path = open_file_dialog()
-    if file_path:
-        root = load_xml_file(file_path)
-        if root:
-            print(f'Wczytano dane z pliku XML')
+        self.convert_button = QPushButton('Konwertuj')
+        self.convert_button.clicked.connect(self.convert_file)
+        self.layout.addWidget(self.convert_button)
 
-async def handle_save_xml():
-    file_path = save_file_dialog()
-    if file_path:
-        root = ET.Element('root')
-        await save_to_xml_file(root, file_path)
+        self.status_label = QLabel()
+        self.layout.addWidget(self.status_label)
 
-async def main():
-    root = tk.Tk()
+        self.setLayout(self.layout)
 
-    btn_load_json = tk.Button(root, text='Wczytaj JSON', command=lambda: asyncio.create_task(handle_load_json()))
-    btn_load_json.pack()
+    def choose_file(self):
+        file_path = filedialog.askopenfilename()
+        self.file_button.setText(file_path)
 
-    btn_save_json = tk.Button(root, text='Zapisz JSON', command=lambda: asyncio.create_task(handle_save_json()))
-    btn_save_json.pack()
+    def convert_file(self):
+        input_file = self.file_button.text()
+        output_file = self.name_input.text() + '.' + self.format_input.currentText()
 
-    btn_load_yaml = tk.Button(root, text='Wczytaj YAML', command=lambda: asyncio.create_task(handle_load_yaml()))
-    btn_load_yaml.pack()
+        input_format = input_file.split('.')[-1]
 
-    btn_save_yaml = tk.Button(root, text='Zapisz YAML', command=lambda: asyncio.create_task(handle_save_yaml()))
-    btn_save_yaml.pack()
+        if input_format == 'json':
+            data = load_json_file(input_file)
+        elif input_format == 'xml':
+            data = load_yaml_file(input_file)
+        elif input_format == 'yaml':
+            data = load_yaml_file(input_file)
+        else:
+            self.status_label.setText('Nieprawidłowy format wejściowy')
+            return
 
-    btn_load_xml = tk.Button(root, text='Wczytaj XML', command=lambda: asyncio.create_task(handle_load_xml()))
-    btn_load_xml.pack()
+        if self.format_input.currentText() == 'json':
+            save_to_json_file(data, output_file)
+        elif self.format_input.currentText() == 'xml':
+            save_to_xml_file(json_to_xml(data), output_file)
+        elif self.format_input.currentText() == 'yaml':
+            save_to_yaml_file(data, output_file)
+        else:
+            self.status_label.setText('Nieprawidłowy format wynikowy')
 
-    btn_save_xml = tk.Button(root, text='Zapisz XML', command=lambda: asyncio.create_task(handle_save_xml()))
-    btn_save_xml.pack()
+        self.status_label.setText('Konwersja udana')
 
-    root.mainloop()
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    app = QApplication(sys.argv)
+    converter_app = ConverterApp()
+    converter_app.show()
+    sys.exit(app.exec_())
