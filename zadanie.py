@@ -108,26 +108,25 @@ async def handle_save_xml():
         await save_to_xml_file(root, file_path)
 
 async def main():
-    root = tk.Tk()
-
-    btn_load_json = tk.Button(root, text='Wczytaj JSON', command=lambda: asyncio.create_task(handle_load_json()))
+    btn_load_json = tk.Button(text='Wczytaj JSON', command=lambda: asyncio.create_task(handle_load_json()))
     btn_load_json.pack()
 
-    btn_save_json = tk.Button(root, text='Zapisz JSON', command=lambda: asyncio.create_task(handle_save_json()))
+    btn_save_json = tk.Button(text='Zapisz JSON', command=lambda: asyncio.create_task(handle_save_json()))
     btn_save_json.pack()
 
-    btn_load_yaml = tk.Button(root, text='Wczytaj YAML', command=lambda: asyncio.create_task(handle_load_yaml()))
+    btn_load_yaml = tk.Button(text='Wczytaj YAML', command=lambda: asyncio.create_task(handle_load_yaml()))
     btn_load_yaml.pack()
 
-    btn_save_yaml = tk.Button(root, text='Zapisz YAML', command=lambda: asyncio.create_task(handle_save_yaml()))
+    btn_save_yaml = tk.Button(text='Zapisz YAML', command=lambda: asyncio.create_task(handle_save_yaml()))
     btn_save_yaml.pack()
 
-    btn_load_xml = tk.Button(root, text='Wczytaj XML', command=lambda: asyncio.create_task(handle_load_xml()))
+    btn_load_xml = tk.Button(text='Wczytaj XML', command=lambda: asyncio.create_task(handle_load_xml()))
     btn_load_xml.pack()
 
-    btn_save_xml = tk.Button(root, text='Zapisz XML', command=lambda: asyncio.create_task(handle_save_xml()))
+    btn_save_xml = tk.Button(text='Zapisz XML', command=lambda: asyncio.create_task(handle_save_xml()))
     btn_save_xml.pack()
 
+    root = tk.Tk()
     root.mainloop()
 
 if __name__ == '__main__':
