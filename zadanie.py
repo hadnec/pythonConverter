@@ -48,3 +48,11 @@ def load_xml_file(file_path):
     except Exception as e:
         print(f'Błąd podczas wczytywania pliku XML: {e}')
         return None
+
+def save_to_xml_file(root, file_path):
+    try:
+        tree = ET.ElementTree(root)
+        tree.write(file_path, encoding='utf-8', xml_declaration=True)
+        print(f'Dane zostały zapisane do pliku {file_path}')
+    except Exception as e:
+        print(f'Błąd podczas zapisywania do pliku XML: {e}')
