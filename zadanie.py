@@ -2,12 +2,10 @@ import argparse
 import json
 import yaml
 import xml.etree.ElementTree as ET
+import tkinter as tk
+from tkinter import filedialog
 
-parser = argparse.ArgumentParser(description='Opis programu')
-parser.add_argument('-a', '--argument', help='Opis argumentu')
-args = parser.parse_args()
-if args.argument:
-    print(f'Przekazany argument: {args.argument}')
+
 def load_json_file(file_path):
     try:
         with open(file_path, 'r') as file:
@@ -16,6 +14,8 @@ def load_json_file(file_path):
     except Exception as e:
         print(f'Błąd podczas wczytywania pliku JSON: {e}')
         return None
+
+
 def save_to_json_file(data, file_path):
     try:
         with open(file_path, 'w') as file:
@@ -23,6 +23,8 @@ def save_to_json_file(data, file_path):
             print(f'Dane zostały zapisane do pliku {file_path}')
     except Exception as e:
         print(f'Błąd podczas zapisywania do pliku JSON: {e}')
+
+
 def load_yaml_file(file_path):
     try:
         with open(file_path, 'r') as file:
@@ -32,6 +34,7 @@ def load_yaml_file(file_path):
         print(f'Błąd podczas wczytywania pliku YAML: {e}')
         return None
 
+
 def save_to_yaml_file(data, file_path):
     try:
         with open(file_path, 'w') as file:
@@ -39,6 +42,7 @@ def save_to_yaml_file(data, file_path):
             print(f'Dane zostały zapisane do pliku {file_path}')
     except Exception as e:
         print(f'Błąd podczas zapisywania do pliku YAML: {e}')
+
 
 def load_xml_file(file_path):
     try:
@@ -49,6 +53,7 @@ def load_xml_file(file_path):
         print(f'Błąd podczas wczytywania pliku XML: {e}')
         return None
 
+
 def save_to_xml_file(root, file_path):
     try:
         tree = ET.ElementTree(root)
@@ -56,3 +61,92 @@ def save_to_xml_file(root, file_path):
         print(f'Dane zostały zapisane do pliku {file_path}')
     except Exception as e:
         print(f'Błąd podczas zapisywania do pliku XML: {e}')
+
+
+def open_file_dialog():
+    file_path = filedialog.askopenfilename()
+    return file_path
+
+
+def save_file_dialog():
+    file_path = filedialog.asksaveasfilename()
+    return file_path
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Opis programu')
+    parser.add_argument('-a', '--argument', help='Opis argumentu')
+    args = parser.parse_args()
+    if args.argument:
+        print(f'Przekazany argument: {args.argument}')
+
+    root = tk.Tk()
+
+    def handle_load_json():
+        file_path = open_file_dialog()
+        if file_path:
+            data = load_json_file(file_path)
+            if data:
+                # Wykonaj dodatkowe operacje na wczytanych danych
+                print(f'Wczytano dane z pliku JSON: {data}')
+
+    def handle_save_json():
+        file_path = save_file_dialog()
+        if file_path:
+            # Przygotuj dane do zapisu
+            data = {'example': 'data'}
+            save_to_json_file(data, file_path)
+
+    def handle_load_yaml():
+        file_path = open_file_dialog()
+        if file_path:
+            data = load_yaml_file(file_path)
+            if data:
+                # Wykonaj dodatkowe operacje na wczytanych danych
+                print(f'Wczytano dane z pliku YAML: {data}')
+
+    def handle_save_yaml():
+        file_path = save_file_dialog()
+        if file_path:
+            # Przygotuj dane do zapisu
+            data = {'example': 'data'}
+            save_to_yaml_file(data, file_path)
+
+    def handle_load_xml():
+        file_path = open_file_dialog()
+        if file_path:
+            root = load_xml_file(file_path)
+            if root:
+                # Wykonaj dodatkowe operacje na wczytanym drzewie XML
+                print(f'Wczytano dane z pliku XML')
+
+    def handle_save_xml():
+        file_path = save_file_dialog()
+        if file_path:
+            # Przygotuj drzewo XML do zapisu
+            root = ET.Element('root')
+            save_to_xml_file(root, file_path)
+
+    btn_load_json = tk.Button(root, text='Wczytaj JSON', command=handle_load_json)
+    btn_load_json.pack()
+
+    btn_save_json = tk.Button(root, text='Zapisz JSON', command=handle_save_json)
+    btn_save_json.pack()
+
+    btn_load_yaml = tk.Button(root, text='Wczytaj YAML', command=handle_load_yaml)
+    btn_load_yaml.pack()
+
+    btn_save_yaml = tk.Button(root, text='Zapisz YAML', command=handle_save_yaml)
+    btn_save_yaml.pack()
+
+    btn_load_xml = tk.Button(root, text='Wczytaj XML', command=handle_load_xml)
+    btn_load_xml.pack()
+
+    btn_save_xml = tk.Button(root, text='Zapisz XML', command=handle_save_xml)
+    btn_save_xml.pack()
+
+    root.mainloop()
+
+
+if __name__ == '__main__':
+    main()
