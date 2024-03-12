@@ -1,6 +1,6 @@
 import sys
-import json
 import yaml
+import json
 import xml.etree.ElementTree as ET
 from tkinter import filedialog
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QComboBox
